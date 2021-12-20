@@ -53,9 +53,13 @@ class DC2Generator(Generator):
         self.__data = df.select_dtypes(include=[np.float32, np.float64]).to_numpy()
 
     @property
+    def dimensions(self) -> int:
+        return self.__data.shape[1]
+
+    @property
     def array(self) -> np.ndarray:
         return self.__data
 
-    def sample(self, n: int):
+    def sample(self, n: int) -> np.ndarray:
         idxs = np.random.choice(len(self.__data), n)
         return self.__data[idxs]

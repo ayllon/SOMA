@@ -45,4 +45,6 @@ def kl_two_samples(p: np.ndarray, q: np.ndarray, k: int = 1):
     sx = qtree.query(p, k=k)[0]
     if len(sx.shape) > 1:
         sx = sx[:, -1]
-    return -(d / n) * np.sum(np.log(rx / sx)) + np.log(m / (n - 1))
+    # Note there is an error on formula (14)
+    # Either we take the log of $s_k(x_i) / r_k(x_i)$, or there is a missing -1 on the expression
+    return (d / n) * np.sum(np.log(sx / rx)) + np.log(m / (n - 1))

@@ -24,6 +24,10 @@ class NmistGenerator(Generator):
     def array(self) -> np.ndarray:
         return self.__data
 
-    def sample(self, n: int):
+    @property
+    def dimensions(self) -> int:
+        return self.__data.shape[1]
+
+    def sample(self, n: int) -> np.ndarray:
         idxs = np.random.choice(len(self.__data), n)
         return self.__data[idxs]

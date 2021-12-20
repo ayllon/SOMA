@@ -1,3 +1,6 @@
+from typing import List, Iterable
+
+import numpy as np
 from sklearn.decomposition import PCA
 
 from soma.generators import Generator
@@ -11,20 +14,44 @@ class PCAGenerator(Generator):
     ----------
     generator : Generator
         Generator to reduce
-    dimensions : int
-        Number of dimensions
-    default_samples : int
-        When the decorated generator has no array property (i.e. it is a true random generator,
-        as MultivariateNormalGenerator), use this many samples to fit the PCA.
+    pca: PCA
+        Fitted PCA
     """
 
-    def __init__(self, generator: Generator, dimensions: int, default_samples: int = 10000):
-        self.__pca = PCA(n_components=dimensions)
-        self.__generator = generator
-        if hasattr(generator, 'array'):
-            self.array = self.__pca.fit_transform(generator.array)
-        else:
-            self.__pca.fit(generator.sample(default_samples))
+    @staticmethod
+    def fit(generators: Iterable[Generator], dimensions: int, *, fit_samples: int = 1000):
+        """
+        Fit a PCA from one, or several, generators
 
-    def sample(self, n: int):
+        Parameters
+        ----------
+        generators : Iterable[Generator]
+            List of generators to use for the fitting
+        dimensions : int
+            Number of components to pick
+        fit_samples : int
+            If the generator has no data array, use this number of samples to fit
+        Returns
+        -------
+        out : PCA
+            A fitted PCA
+        """
+        data = []
+        for g in generators:
+            if hasattr(generators, 'array'):
+                data.append(g.array)
+            else:
+                data.append(g.sample(fit_samples))
+        data = np.concatenate(data)
+        return PCA(n_components=dimensions).fit(data)
+
+    def __init__(self, generator: Generator, pca: PCA):
+        self.__pca = pca
+        self.__generator = generator
+
+    @property
+    def dimensions(self) -> int:
+        return self.__pca.n_components
+
+    def sample(self, n: int) -> np.ndarray:
         return self.__pca.transform(self.__generator.sample(n))

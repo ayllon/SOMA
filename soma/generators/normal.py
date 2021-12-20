@@ -12,8 +12,6 @@ class MultivariateNormalGenerator(Generator):
 
     Parameters
     ----------
-    d: int
-        Dimensionality
     mean : float or an array with `d` values
     cov : [Optional] np.ndarray
         Covariance matrix
@@ -25,19 +23,21 @@ class MultivariateNormalGenerator(Generator):
         Scale matrix for the Wishart distribution. Defaults to the identity matrix.
     """
 
-    def __init__(self, d: int, mean: Union[np.ndarray, float], *, cov: np.ndarray = None,
+    def __init__(self, mean: np.ndarray, *, cov: np.ndarray = None,
                  wishart_df: int = None, wishart_scale: np.ndarray = None):
         assert (wishart_df is not None) ^ (
                 cov is not None), 'Either covariance matrix or degrees of freedom must be specified'
+        d = len(mean)
         if cov is None:
             assert wishart_df >= d, 'The number of degrees of freedom must be equal or greater to the dimensionality'
             if wishart_scale is None:
                 wishart_scale = np.diag(np.ones(d))
             cov = wishart(df=wishart_df, scale=wishart_scale).rvs() / wishart_df
-        if not isinstance(mean, np.ndarray):
-            mean = np.repeat(mean, d)
-        assert len(mean) == d
         self.__dist = multivariate_normal(mean, cov=cov)
+
+    @property
+    def dimensions(self) -> int:
+        return len(self.__dist.mean)
 
     def sample(self, n: int) -> np.ndarray:
         """
