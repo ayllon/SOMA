@@ -38,6 +38,11 @@ class DC2Generator(Generator):
         mask = df['FLUX_VIS'] < (abs_mag * u.ABmag).to(u.uJy).value
         df.drop(df[mask].index, inplace=True)
 
+    @staticmethod
+    def __filter_constant(df: pandas.DataFrame):
+        mask = (df == df.iloc[0]).all()
+        df.drop(df.columns[mask], axis=1, inplace=True)
+
     def __init__(self, dataset: str = os.path.expanduser('~/Work/Data/DC2/euclid_cosmos_DC2_S2_v2.1_calib.fits'), *,
                  snr: float = None, abs_mag: float = None):
         df = Table.read(dataset).to_pandas()
@@ -50,6 +55,7 @@ class DC2Generator(Generator):
             self.__filter_snr(df, snr)
         if abs_mag:
             self.__filter_abs_mag(df, abs_mag)
+        self.__filter_constant(df)
         self.__data = df.select_dtypes(include=[np.float32, np.float64]).to_numpy()
 
     @property

@@ -19,7 +19,7 @@ class PCAGenerator(Generator):
     """
 
     @staticmethod
-    def fit(generators: Iterable[Generator], dimensions: int, *, fit_samples: int = 1000):
+    def fit(generators: Iterable[Generator], *, fit_samples: int = 1000):
         """
         Fit a PCA from one, or several, generators
 
@@ -43,15 +43,16 @@ class PCAGenerator(Generator):
             else:
                 data.append(g.sample(fit_samples))
         data = np.concatenate(data)
-        return PCA(n_components=dimensions).fit(data)
+        return PCA(n_components=None).fit(data)
 
-    def __init__(self, generator: Generator, pca: PCA):
+    def __init__(self, generator: Generator, dimensions: int, pca: PCA):
         self.__pca = pca
+        self.__d = dimensions
         self.__generator = generator
 
     @property
     def dimensions(self) -> int:
-        return self.__pca.n_components
+        return self.__d
 
     def sample(self, n: int) -> np.ndarray:
-        return self.__pca.transform(self.__generator.sample(n))
+        return self.__pca.transform(self.__generator.sample(n))[:, :self.__d]
