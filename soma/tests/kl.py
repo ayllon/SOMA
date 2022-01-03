@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial.ckdtree import cKDTree
 
 
-def kl_two_samples(p: np.ndarray, q: np.ndarray, k: int = 1):
+def kl_two_samples(p: np.ndarray, q: np.ndarray, k: int = 1) -> float:
     """
     Based on F. Pérez-Cruz, "Kullback-Leibler divergence estimation of continuous distributions,"
     in 2008 IEEE international symposium on information theory, 2008, pp. 1666–1670.

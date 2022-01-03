@@ -1,12 +1,12 @@
-from typing import List, Iterable
+from typing import Iterable
 
 import numpy as np
 from sklearn.decomposition import PCA
 
-from soma.generators import Generator
+from soma.generators import Generator, Reducer
 
 
-class PCAGenerator(Generator):
+class PCAGenerator(Reducer):
     """
     Decorate another generator, performing a dimensionality reduction using PCA.
 

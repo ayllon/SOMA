@@ -3,10 +3,10 @@ from typing import Iterable
 import numpy as np
 from sklearn.feature_selection import SelectKBest, f_classif
 
-from soma.generators import Generator
+from soma.generators import Generator, Reducer
 
 
-class KBestGenerator(Generator):
+class KBestGenerator(Reducer):
     @staticmethod
     def fit(generators: Iterable[Generator], *, fit_samples: int = 1000):
         data = []
