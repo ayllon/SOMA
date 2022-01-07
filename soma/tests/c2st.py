@@ -52,3 +52,11 @@ def c2s_test(a: pandas.DataFrame, b: pandas.DataFrame, classifier='nn') -> float
     if p > 0.5:
         return 2 * (1 - p)
     return 2 * p
+
+
+def c2s_nn_test(a: pandas.DataFrame, b: pandas.DataFrame) -> float:
+    return c2s_test(a, b, 'nn')
+
+
+def c2s_knn_test(a: pandas.DataFrame, b: pandas.DataFrame) -> float:
+    return c2s_test(a, b, 'knn')

@@ -1,3 +1,5 @@
+from typing import Dict
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -14,3 +16,21 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
     ax.axhline(mean + std, linestyle='--', c='pink')
     ax.legend()
     return plt.gcf()
+
+
+def plot_power(dimensions: np.ndarray, results: Dict[str, np.ndarray], *, alpha: float = 0.1):
+    figsize = plt.rcParams['figure.figsize']
+    fig, axes = plt.subplots(ncols=2, sharex=True, figsize=(figsize[0], figsize[1] / 2))
+    for test_name, test_results in results.items():
+        axes[0].plot(dimensions, test_results[:, 0], label=test_name)
+        axes[1].plot(dimensions, test_results[:, 1], label=test_name)
+    axes[1].legend()
+    axes[0].axhline(alpha, linestyle='--', color='red')
+    axes[0].set_xlabel('Dimensions')
+    axes[0].set_ylabel('$\\alpha$')
+    axes[1].set_xlabel('Dimensions')
+    axes[1].set_ylabel('$\\beta$')
+    axes[0].set_title('Type I Error')
+    axes[1].set_title('Type II Error')
+    plt.tight_layout()
+    return fig
