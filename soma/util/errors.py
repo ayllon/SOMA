@@ -7,8 +7,8 @@ from soma.generators import Generator
 from soma.generators.kbest import KBestGenerator
 
 
-def compute_power(gen_a: Generator, gen_b: Generator, test: Callable, *, alpha: float = 0.1, samples: int = 300,
-                  repeat: int = 100):
+def compute_errors(gen_a: Generator, gen_b: Generator, test: Callable, *, alpha: float = 0.1, samples: int = 300,
+                   repeat: int = 500):
     error1 = 0.
     error2 = 0.
 
@@ -24,8 +24,8 @@ def compute_power(gen_a: Generator, gen_b: Generator, test: Callable, *, alpha: 
     return error1 / repeat, error2 / repeat
 
 
-def stat_power(gen_a: Generator, gen_b: Generator, tests: Dict[str, Callable], *, alpha: float = 0.1,
-               samples: int = 300, repeat: int = 50, step: int = 10):
+def stat_errors_vs_dimension(gen_a: Generator, gen_b: Generator, tests: Dict[str, Callable], *, alpha: float = 0.1,
+                             samples: int = 300, repeat: int = 500, step: int = 10):
     assert gen_a.dimensions == gen_b.dimensions
 
     dimensions = np.unique(np.concatenate([np.arange(2, gen_a.dimensions, step), [gen_a.dimensions]]))
@@ -36,6 +36,6 @@ def stat_power(gen_a: Generator, gen_b: Generator, tests: Dict[str, Callable], *
         kbest_a_gen = KBestGenerator(gen_a, d, feat_selector=kbest)
         kbest_b_gen = KBestGenerator(gen_b, d, feat_selector=kbest)
         for test_name, test in tests.items():
-            results[test_name][i, :] = compute_power(kbest_a_gen, kbest_b_gen, test, alpha=alpha, samples=samples,
-                                                     repeat=repeat)
+            results[test_name][i, :] = compute_errors(kbest_a_gen, kbest_b_gen, test, alpha=alpha, samples=samples,
+                                                      repeat=repeat)
     return dimensions, results
