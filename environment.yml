@@ -11,11 +11,9 @@ dependencies:
   - numpy
   - scipy
   - somoclu
-  - keras
-  - tensorflow
   - tqdm
   - ipywidgets
   - astropy
   - pandas
   - joblib
-prefix: /opt/miniconda3/envs/SOMA
+  - scikit-learn
