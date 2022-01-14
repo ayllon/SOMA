@@ -1,0 +1,21 @@
+name: SOMA
+channels:
+  - astrorama
+  - mark.harfouche
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - jupyterlab
+  - matplotlib
+  - numpy
+  - scipy
+  - somoclu
+  - keras
+  - tensorflow
+  - tqdm
+  - ipywidgets
+  - astropy
+  - pandas
+  - joblib
+prefix: /opt/miniconda3/envs/SOMA
