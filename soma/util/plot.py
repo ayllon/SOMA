@@ -17,7 +17,7 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
     return plt.gcf()
 
 
-def plot_errors(results: DataFrame, *, alpha: float = 0.1):
+def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
@@ -37,11 +37,14 @@ def plot_errors(results: DataFrame, *, alpha: float = 0.1):
     axes[1].set_ylabel('$\\beta$')
     axes[0].set_title('Type I Error')
     axes[1].set_title('Type II Error')
+    if logscale:
+        axes[0].set_xscale('log')
+        axes[1].set_xscale('log')
     fig.tight_layout()
     return fig
 
 
-def plot_time(results: DataFrame):
+def plot_time(results: DataFrame, logscale: bool = False):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
@@ -53,6 +56,8 @@ def plot_time(results: DataFrame):
         ax.plot(xval, test_results['time'], label=test_name)
     ax.set_xlabel(xlabel)
     ax.set_ylabel('Seconds')
+    if logscale:
+        ax.set_xscale('log')
     fig.legend()
     fig.tight_layout()
     return fig
