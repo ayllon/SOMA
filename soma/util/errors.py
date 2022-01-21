@@ -16,18 +16,21 @@ def compute_errors(gen_a: Generator, gen_b: Generator, test: Callable, *, alpha:
     error1 = 0.
     error2 = 0.
 
-    start = perf_counter()
+    duration = 0.
     for _ in range(repeat):
         a = gen_a.sample(samples)
         a2 = gen_a.sample(samples)
         b = gen_b.sample(samples)
+        start = perf_counter()
         ph0 = test(a, a2)
         ph1 = test(a, b)
+        end = perf_counter()
+        duration += (end - start)
         error1 += ph0 <= alpha
         error2 += ph1 > alpha
-    end = perf_counter()
+
     # 2 tests inside the loop!
-    duration = (end - start) / (2. * repeat)
+    duration /= (2. * repeat)
     if return_duration:
         return error1 / repeat, error2 / repeat, duration
     return error1 / repeat, error2 / repeat
