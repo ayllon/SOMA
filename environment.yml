@@ -17,3 +17,5 @@ dependencies:
   - pandas
   - joblib
   - scikit-learn
+  - onnxruntime
+  - Pillow
