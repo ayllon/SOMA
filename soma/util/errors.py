@@ -43,14 +43,16 @@ def stat_errors_vs_dimension(gen_a: Generator, gen_b: Generator, tests: Dict[str
     dimensions = np.unique(np.concatenate([np.arange(2, gen_a.dimensions, step), [gen_a.dimensions]]))
 
     kbest = KBestGenerator.fit([gen_a, gen_b])
-    results = {test_name: np.zeros((len(dimensions), 2), dtype=float) for test_name in tests.keys()}
-    for i, d in enumerate(tqdm(dimensions)):
+    results = DataFrame(columns=['error1', 'error2', 'time'],
+                        index=MultiIndex.from_product([tests.keys(), dimensions], names=['test', 'dimensions']))
+    for d in tqdm(dimensions):
         kbest_a_gen = KBestGenerator(gen_a, d, feat_selector=kbest)
         kbest_b_gen = KBestGenerator(gen_b, d, feat_selector=kbest)
         for test_name, test in tests.items():
-            results[test_name][i, :] = compute_errors(kbest_a_gen, kbest_b_gen, test, alpha=alpha, samples=samples,
-                                                      repeat=repeat)
-    return dimensions, results
+            results.loc[test_name, d].loc[:] = compute_errors(kbest_a_gen, kbest_b_gen, test, alpha=alpha,
+                                                              samples=samples,
+                                                              repeat=repeat, return_duration=True)
+    return results
 
 
 def stat_errors_vs_sample_size(gen_a: Generator, gen_b: Generator, tests: Dict[str, Callable], samples: np.ndarray, *,
