@@ -1,3 +1,7 @@
+*.npy
 *.onnx
+*.pytorch
 imdb.mat
 imdb_crop/
+age.prototxt
+dex_imdb_wiki.*

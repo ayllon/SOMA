@@ -5,20 +5,22 @@ From https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/
 Using IMDB metadata and cropped faces.
 
 ## Model
-The VGG-16 pre-trained model was obtained from the
-[ONNX repository](https://github.com/onnx/models/tree/master/vision/classification/vgg).
+The model `caffe` downloaded from the URL above has been 
+converted to `pytorch` using the following command:
 
-## Accessing last hidden layer
-The model has to be modified in order to be able to access the last hidden layer,
-which is named `vgg0_dense1_fwd`.
-This can be achieved as follows:
-
-```python
-import onnx
-
-vgg = onnx.load('vgg16-7.onnx')
-layer = onnx.helper.ValueInfoProto()
-layer.name = 'vgg0_dense1_fwd'
-vgg.graph.output.append(layer)
-onnx.save(vgg, 'vgg16-7-last_hidden.onnx')
+```bash
+mmconvert --srcFramework caffe \
+    --inputWeight dex_imdb_wiki.caffemodel \
+    --inputNetwork age.prototxt \
+    --dstFramework pytorch \
+    --outputModel dex_imdb_wiki.pytorch
 ```
+
+The generated `dex_imdb_wiki.py` has been patched to return the
+values from the last hidden layer.
+
+## Data
+The data has been pre-processed using the script `preprocess.py`.
+It writes a numpy array into disk containing the age, the predicted
+age (for cross-checking the code works) and the 4096 values
+from the NN last hidden layer.
