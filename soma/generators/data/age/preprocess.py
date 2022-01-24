@@ -120,22 +120,26 @@ def project_nn(metadata: mat_struct, photo_dir: str, model: torch.nn.Module, out
         age = age[:input_size]
         photos = photos[:input_size]
     logger.info('Creating output %s', output_path)
+    # Do not keep open, or the RSS may grow out of hand!
     output = open_memmap(output_path, mode='w+',
                          dtype=[('age', int), ('prediction', int), ('projection', np.float32, 4096)],
                          shape=(len(age),))
-    output['age'] = age
+    del output
 
     logger.info('Procesing in chunks of %d', chunk_size)
-    nchunks = (len(output) // chunk_size) + (len(output) % chunk_size > 0)
+    nchunks = (len(age) // chunk_size) + (len(age) % chunk_size > 0)
     raw_data = np.zeros((chunk_size, 3, 224, 224), dtype=np.float32)
     for c in tqdm(range(nchunks)):
+        output = np.load(output_path, mmap_mode='r+')
         start = c * chunk_size
-        stop = min(start + chunk_size, len(output))
+        stop = min(start + chunk_size, len(age))
         size = stop - start
         for i in range(size):
             photo_path = os.path.join(photo_dir, photos[start + i])
             raw_data[i] = __preprocess_image(Image.open(photo_path))
-        probs, projection = model.forward(torch.from_numpy(raw_data[:size]))
+
+        probs, projection = model(torch.from_numpy(raw_data[:size]))
+        output['age'][start:stop] = age[start:stop]
         output['prediction'][start:stop] = probs.argmax(axis=-1)
         output['projection'][start:stop] = projection.detach().numpy()
 
@@ -146,7 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--photo-dir', type=str, metavar='PHOTO_DIRECTORY', default='imdb_crop')
     parser.add_argument('-M', '--model', type=str, metavar='MODEL', default='dex_imdb_wiki.pytorch')
     parser.add_argument('-s', '--input-size', type=int, default=None)
-    parser.add_argument('-c', '--chunk-size', type=int, default=50)
+    parser.add_argument('-c', '--chunk-size', type=int, default=4)
     parser.add_argument('-o', '--output', type=str, metavar='OUTPUT', default='age_preprocessed.npy')
     args = parser.parse_args()
 
