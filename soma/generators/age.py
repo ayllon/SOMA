@@ -1,4 +1,5 @@
 import os.path
+from typing import Tuple
 
 import numpy as np
 
@@ -47,10 +48,15 @@ class AgeGenerator(Generator):
             self.load_dataset()
         mask = (self.DATASET['age'] >= min_age) & (self.DATASET['age'] < max_age)
         self.__projections = self.DATASET[mask]['projection']
+        self.__age = self.DATASET[mask]['age']
 
     def sample(self, n: int) -> np.ndarray:
         idxs = np.random.choice(len(self.__projections), size=n)
         return self.__projections[idxs]
+
+    def sample_with_age(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+        idxs = np.random.choice(len(self.__projections), size=n)
+        return self.__projections[idxs], self.__age[idxs]
 
     @property
     def array(self) -> np.ndarray:
