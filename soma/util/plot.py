@@ -17,29 +17,36 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
     return plt.gcf()
 
 
-def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False):
+def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False, show_time: bool = False):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
 
     figsize = plt.rcParams['figure.figsize']
-    fig, axes = plt.subplots(ncols=2, sharex=True, figsize=(figsize[0], figsize[1] / 2))
+    nrows = 3 if show_time else 2
+    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(figsize[0] / 2., figsize[1]))
 
     for test_name in tests:
         test_results = results.loc[test_name]
         axes[0].plot(xval, test_results['error1'], label=test_name)
         axes[1].plot(xval, test_results['error2'], label=test_name)
+        if show_time:
+            axes[2].plot(xval, test_results['time'], label=test_name)
+
     axes[1].legend()
     axes[0].axhline(alpha, linestyle='--', color='red')
-    axes[0].set_xlabel(xlabel)
-    axes[0].set_ylabel('$\\alpha$')
-    axes[1].set_xlabel(xlabel)
-    axes[1].set_ylabel('$\\beta$')
-    axes[0].set_title('Type I Error')
-    axes[1].set_title('Type II Error')
+    axes[0].set_ylabel('Type I Error')
+    axes[1].set_ylabel('Type II Error')
+    if show_time:
+        axes[2].set_xlabel(xlabel)
+        axes[2].set_ylabel('Time (s)')
+    axes[-1].set_xlabel('Samples')
+
     if logscale:
         axes[0].set_xscale('log')
         axes[1].set_xscale('log')
+        if show_time:
+            axes[2].set_xscale('log')
     fig.tight_layout()
     return fig
 
