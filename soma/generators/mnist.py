@@ -4,9 +4,9 @@ from keras.datasets import mnist
 from soma.generators import Generator
 
 
-class NmistGenerator(Generator):
+class MnistGenerator(Generator):
     """
-    Generate samples from the distribution of values from the NMIST dataset
+    Generate samples from the distribution of values from the MNIST dataset
 
     Parameters
     ----------
