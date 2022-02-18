@@ -40,7 +40,7 @@ def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = Fals
     if show_time:
         axes[2].set_xlabel(xlabel)
         axes[2].set_ylabel('Time (s)')
-    axes[-1].set_xlabel('Samples')
+    axes[-1].set_xlabel(xlabel)
 
     if logscale:
         axes[0].set_xscale('log')
