@@ -21,7 +21,8 @@ def som_test(a: np.ndarray, b: np.ndarray, size: Tuple[int, int] = (10, 10),
     gt0 = (ap + bp) > 0
     c2 = np.sum(((ap - bp) ** 2)[gt0] / (ap + bp)[gt0])
 
-    ret = [1 - chi2.cdf(c2, df=gt0.sum() - 1)]
+    c = int(len(a) == len(b))
+    ret = [1 - chi2.cdf(c2, df=gt0.sum() - c)]
     if ret_som:
         ret.append(som)
     if ret_counts:
