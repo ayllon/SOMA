@@ -4,12 +4,12 @@ from pandas import DataFrame
 
 
 def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: float, std: float,
-                     ax: plt.Axes = None) -> plt.Figure:
+                     ax: plt.Axes = None, label: str = None) -> plt.Figure:
     if ax is None:
         ax = plt.gca()
-    ax.plot(dimensions, divergences[:, 0], label='PCA KL-Divergence', color='#4c72b0')
+    ax.plot(dimensions, divergences[:, 0], label=f'{label} KL-Divergence', color='#4c72b0')
     ax.fill_between(dimensions, divergences[:, 0] - divergences[:, 1], divergences[:, 0] + divergences[:, 1],
-                    label='PCA $\\pm \\sigma$', color='#6ea5ff')
+                    label=f'{label} $\\pm \\sigma$', color='#6ea5ff')
     ax.axhline(mean, linestyle='--', c='red', label='Original KL-Divergence')
     ax.axhline(mean - std, linestyle='--', c='pink')
     ax.axhline(mean + std, linestyle='--', c='pink')
