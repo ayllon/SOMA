@@ -1,5 +1,3 @@
-from typing import Union
-
 import numpy as np
 from scipy.stats import wishart, multivariate_normal
 
