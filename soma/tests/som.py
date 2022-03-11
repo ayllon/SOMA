@@ -16,8 +16,8 @@ def som_test(a: np.ndarray, b: np.ndarray, size: Tuple[int, int] = (10, 10),
     ap = som.get_surface_state(a)
     bp = som.get_surface_state(b)
 
-    ap = (ap <= ap.min(axis=1)[:, np.newaxis]).sum(axis=0).reshape(*size)
-    bp = (bp <= bp.min(axis=1)[:, np.newaxis]).sum(axis=0).reshape(*size)
+    ap = (ap <= ap.min(axis=1)[:, np.newaxis]).sum(axis=0).reshape(size[1], size[0])
+    bp = (bp <= bp.min(axis=1)[:, np.newaxis]).sum(axis=0).reshape(size[1], size[0])
     gt0 = (ap + bp) > 0
     c2 = np.sum(((ap - bp) ** 2)[gt0] / (ap + bp)[gt0])
 
