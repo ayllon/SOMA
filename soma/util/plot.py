@@ -17,14 +17,17 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
     return plt.gcf()
 
 
-def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False, show_time: bool = False):
+def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False, show_time: bool = False,
+                legend: bool = True, fig: plt.Figure = None, axes: plt.Axes = None):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
 
     figsize = plt.rcParams['figure.figsize']
     nrows = 3 if show_time else 2
-    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(figsize[0] / 2., figsize[1]))
+
+    if fig is None:
+        fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(figsize[0] / 2., figsize[1]))
 
     for test_name in tests:
         test_results = results.loc[test_name]
@@ -33,10 +36,12 @@ def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = Fals
         if show_time:
             axes[2].plot(xval, test_results['time'], label=test_name)
 
-    axes[1].legend()
+    if legend:
+        axes[1].legend()
+
     axes[0].axhline(alpha, linestyle='--', color='red')
-    axes[0].set_ylabel('Type I Error')
-    axes[1].set_ylabel('Type II Error')
+    axes[0].set_ylabel('Type I')
+    axes[1].set_ylabel('Type II')
     if show_time:
         axes[2].set_xlabel(xlabel)
         axes[2].set_ylabel('Time (s)')
@@ -47,6 +52,11 @@ def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = Fals
         axes[1].set_xscale('log')
         if show_time:
             axes[2].set_xscale('log')
+
+    for ax in axes[:-1]:
+        ax.xaxis.set_ticklabels([])
+
+    fig.align_ylabels(axes)
     fig.tight_layout()
     return fig
 
@@ -68,3 +78,11 @@ def plot_time(results: DataFrame, logscale: bool = False):
     fig.legend()
     fig.tight_layout()
     return fig
+
+def lock_axes(*axes):
+    aux = np.array([ax.get_ylim() for ax in axes])
+    ymin = np.min(aux[:,0])
+    ymax = np.max(aux[:,1])
+    for ax in axes:
+        ax.set_ylim(ymin, ymax)
+
