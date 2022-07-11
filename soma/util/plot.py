@@ -1,5 +1,8 @@
+from typing import List, Optional
+
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
 from pandas import DataFrame
 
 
@@ -18,7 +21,7 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
 
 
 def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False, show_time: bool = False,
-                legend: bool = True, fig: plt.Figure = None, axes: plt.Axes = None):
+                legend: bool = True, fig: plt.Figure = None, axes: Optional[List[plt.Axes]] = None):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
@@ -79,10 +82,35 @@ def plot_time(results: DataFrame, logscale: bool = False):
     fig.tight_layout()
     return fig
 
+
 def lock_axes(*axes):
     aux = np.array([ax.get_ylim() for ax in axes])
-    ymin = np.min(aux[:,0])
-    ymax = np.max(aux[:,1])
+    ymin = np.min(aux[:, 0])
+    ymax = np.max(aux[:, 1])
     for ax in axes:
         ax.set_ylim(ymin, ymax)
 
+
+def plot_sample_and_dim(samples: DataFrame, dims: DataFrame, title: str) -> plt.Figure:
+    gs = GridSpec(nrows=4, ncols=2, height_ratios=[0.1, 0.3, 0.3, 0.3], hspace=0.1)
+
+    fig = plt.figure()
+
+    axes_samples = [fig.add_subplot(gs[1 + i, 0]) for i in range(3)]
+    _ = plot_errors(samples, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_samples)
+
+    axes_dim = [fig.add_subplot(gs[1 + i, 1]) for i in range(3)]
+    _ = plot_errors(dims, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_dim)
+
+    for ax in axes_dim:
+        ax.set_ylabel(None)
+
+    lock_axes(axes_samples[0], axes_dim[0])
+    lock_axes(axes_samples[1], axes_dim[1])
+
+    ax_legend = fig.add_subplot(gs[0, :])
+    ax_legend.legend(handles=axes_dim[0].get_legend_handles_labels()[0], loc='center', ncol=4)
+    ax_legend.set_axis_off()
+
+    ax_legend.set_title(title)
+    return fig
