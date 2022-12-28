@@ -1,11 +1,9 @@
 name: SOMA
 channels:
-  - astrorama
-  - mark.harfouche
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
+  - python=3.10
   - jupyterlab
   - matplotlib
   - numpy
@@ -17,3 +15,4 @@ dependencies:
   - pandas
   - joblib
   - scikit-learn
+  - statsmodels

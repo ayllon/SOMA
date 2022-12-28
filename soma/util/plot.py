@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 from pandas import DataFrame
+from statsmodels.stats.proportion import proportion_confint
 
 
 def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: float, std: float,
@@ -20,8 +21,15 @@ def plot_divergences(dimensions: np.ndarray, divergences: np.ndarray, mean: floa
     return plt.gcf()
 
 
+def estimate_binomial_errors(p: np.array, n: int, confidence: float = 0.95):
+    error = np.array(proportion_confint(p * n, nobs=n, alpha=1 - confidence, method='wilson'))
+    error[0] = np.clip(p - error[0], 0, None)
+    error[1] = np.clip(error[1] - p, 0, None)
+    return error
+
+
 def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = False, show_time: bool = False,
-                legend: bool = True, fig: plt.Figure = None, axes: Optional[List[plt.Axes]] = None):
+                legend: bool = True, fig: plt.Figure = None, axes: Optional[List[plt.Axes]] = None, n: int = None):
     tests = results.index.levels[0].values
     xval = results.index.levels[1].values
     xlabel = results.index.names[1].capitalize()
@@ -34,8 +42,14 @@ def plot_errors(results: DataFrame, *, alpha: float = 0.1, logscale: bool = Fals
 
     for test_name in tests:
         test_results = results.loc[test_name]
-        axes[0].plot(xval, test_results['error1'], label=test_name)
-        axes[1].plot(xval, test_results['error2'], label=test_name)
+        if n:
+            axes[0].errorbar(xval, test_results['error1'], yerr=estimate_binomial_errors(test_results['error1'], n),
+                             label=test_name)
+            axes[1].errorbar(xval, test_results['error2'], yerr=estimate_binomial_errors(test_results['error2'], n),
+                             label=test_name)
+        else:
+            axes[0].plot(xval, test_results['error1'], label=test_name)
+            axes[1].plot(xval, test_results['error2'], label=test_name)
         if show_time:
             axes[2].plot(xval, test_results['time'], label=test_name)
 
@@ -91,16 +105,16 @@ def lock_axes(*axes):
         ax.set_ylim(ymin, ymax)
 
 
-def plot_sample_and_dim(samples: DataFrame, dims: DataFrame, title: str) -> plt.Figure:
+def plot_sample_and_dim(samples: DataFrame, dims: DataFrame, title: str, n: int) -> plt.Figure:
     gs = GridSpec(nrows=4, ncols=2, height_ratios=[0.1, 0.3, 0.3, 0.3], hspace=0.1)
 
     fig = plt.figure()
 
     axes_samples = [fig.add_subplot(gs[1 + i, 0]) for i in range(3)]
-    _ = plot_errors(samples, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_samples)
+    _ = plot_errors(samples, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_samples, n=n)
 
     axes_dim = [fig.add_subplot(gs[1 + i, 1]) for i in range(3)]
-    _ = plot_errors(dims, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_dim)
+    _ = plot_errors(dims, logscale=True, show_time=True, legend=False, fig=fig, axes=axes_dim, n=n)
 
     for ax in axes_dim:
         ax.set_ylabel(None)
